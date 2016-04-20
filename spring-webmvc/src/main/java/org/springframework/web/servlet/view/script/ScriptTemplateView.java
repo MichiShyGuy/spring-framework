@@ -219,7 +219,14 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
 					viewConfig.getResourceLoaderPath() : DEFAULT_RESOURCE_LOADER_PATH);
 		}
 		if (this.resourceLoader == null) {
-			this.resourceLoader = new DefaultResourceLoader(createClassLoader());
+			// In case of an WebApplication
+			if (context instanceof WebApplicationContext) {
+				// .. we choose a ServletContext-aware ResourceLoader to allow access to web-resources
+				this.resourceLoader = new ServletContextResourceLoader(((WebApplicationContext) context).getServletContext());
+		        } else {
+		        	// otherwise we fallback to the default behaviour which handles classpath-resources
+		                this.resourceLoader = new DefaultResourceLoader(createClassLoader());
+		        }
 		}
 		if (this.sharedEngine == null && viewConfig.isSharedEngine() != null) {
 			this.sharedEngine = viewConfig.isSharedEngine();
